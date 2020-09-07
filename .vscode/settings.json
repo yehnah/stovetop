@@ -1,0 +1,17 @@
+{
+    "workbench.colorCustomizations": {},
+    // "rust-analyzer.highlighting.semanticTokens": true,
+    // "editor.semanticHighlighting.enabled": false,
+    // "rust-analyzer.cargo.allFeatures": true,
+    // "rust-analyzer.checkOnSave.allFeatures": true,
+    // "rust-analyzer.cargo.features": [
+    //     "fmt"
+    // ],
+    // "[rust]": {
+    //     "editor.defaultFormatter": "matklad.rust-analyzer"
+    // },
+    // "editor.codeActionsOnSave": {
+    //     "source.fixAll": true
+    // },
+    // "rust-analyzer.rustfmt.overrideCommand": null
+}
