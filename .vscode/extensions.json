@@ -9,7 +9,6 @@
 		"hbenl.vscode-test-explorer",
 		"swellaby.vscode-rust-test-adapter",
 		"sidp.strict-whitespace",
-		"stuart.unique-window-colors",
 		"rust-lang.rust"
 	],
 	// List of extensions recommended by VS Code that should not be recommended for users of this workspace.
