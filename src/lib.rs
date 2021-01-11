@@ -35,7 +35,7 @@ pub fn generate(
     path: &str,
     template_path: &str,
     output_path: &str,
-    base_dir: &str,
+    recursive_path: Option<&str>,
 ) -> io::Result<()> {
     let main_path = Path::new(path);
     let output_base = Path::new(output_path);
@@ -71,7 +71,7 @@ pub fn generate(
             );
 
             fs::create_dir(&pth).unwrap();
-            generate(entry.to_str().unwrap(), template_path, output_path, path).unwrap();
+            generate(entry.to_str().unwrap(), template_path, output_path, Some(path)).unwrap();
         }
         // - CASE: IS FILE -------------------------------------------------
         // Replace the template values in each file and write to output
@@ -97,7 +97,7 @@ pub fn generate(
                 let mut pos = 0;
 
                 // Replace input path with output path
-                let pth = str::replace(entry.to_str().unwrap(), base_dir, output_path);
+                let pth = str::replace(entry.to_str().unwrap(), recursive_path.unwrap_or(path), output_path);
                 let new_file_path = PathBuf::from(pth);
                 let mut buffer = File::create(new_file_path)?;
                 while pos < data.len() {
@@ -119,14 +119,20 @@ mod test_super {
     use super::*;
 
     #[test]
+    fn has_all_files() {
+        let val = read_directory("./example/template").unwrap();
+        assert_eq!(val.len(), 2);
+    }
+
+    #[test]
     fn reads_directory() {
-        let val = read_directory("./example").unwrap();
-        assert_eq!(val[0].to_str().unwrap(), "./example/template.txt");
+        let val = read_directory("./example/template").unwrap();
+        assert_eq!(val[0].to_str().unwrap(), "./example/template/template.txt");
     }
 
     #[test]
     fn reads_file() {
-        let val = read_file("./example/template.txt").unwrap();
-        assert_eq!(val, "Hello {{place}}!");
+        let val = read_file("./example/template/template.txt").unwrap();
+        assert_eq!(val, "Hello {{title}} from {{place}}");
     }
 }
