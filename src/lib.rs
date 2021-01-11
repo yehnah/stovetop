@@ -11,7 +11,7 @@ use toml::Value;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-pub fn read_directory(path: &str) -> std::io::Result<Vec<PathBuf>> {
+fn read_directory(path: &str) -> std::io::Result<Vec<PathBuf>> {
     let mut store: Vec<PathBuf> = vec![];
     for entry in fs::read_dir(path.to_string())? {
         let dir = entry?.path();
@@ -22,7 +22,7 @@ pub fn read_directory(path: &str) -> std::io::Result<Vec<PathBuf>> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-pub fn read_file(path: &str) -> io::Result<String> {
+fn read_file(path: &str) -> io::Result<String> {
     let mut f = File::open(path)?;
     let mut string_buffer = String::new();
     f.read_to_string(&mut string_buffer)?;
