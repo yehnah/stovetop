@@ -1,11 +1,10 @@
-use stovetop::{ generate };
+use stovetop;
 
 fn main() {
-    let files = generate(
+    stovetop::generate(
         "./example/template",
         "./example/stovetop.toml",
         "./output",
         None
-    );
-    println!("{:?}", files);
+    ).unwrap();
 }
