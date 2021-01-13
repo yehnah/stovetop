@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::fs;
-use std::fs::File;
-use std::io;
+use std::fs::{File, read_dir, create_dir};
+use std::io::Result;
 use std::io::prelude::*;
 use std::path::{Path, PathBuf};
 use std::str;
@@ -11,9 +10,9 @@ use toml::Value;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn read_directory(path: &str) -> std::io::Result<Vec<PathBuf>> {
+fn read_directory(path: &str) -> Result<Vec<PathBuf>> {
     let mut store: Vec<PathBuf> = vec![];
-    for entry in fs::read_dir(path.to_string())? {
+    for entry in read_dir(path.to_string())? {
         let dir = entry?.path();
         store.push(dir);
     }
@@ -22,7 +21,7 @@ fn read_directory(path: &str) -> std::io::Result<Vec<PathBuf>> {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn read_file(path: &str) -> io::Result<String> {
+fn read_file(path: &str) -> Result<String> {
     let mut f = File::open(path)?;
     let mut string_buffer = String::new();
     f.read_to_string(&mut string_buffer)?;
@@ -32,21 +31,21 @@ fn read_file(path: &str) -> io::Result<String> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub fn generate(
-    path: &str,
+    input_path: &str,
     template_path: &str,
     output_path: &str,
     recursive_path: Option<&str>,
-) -> io::Result<()> {
-    let main_path = Path::new(path);
+) -> Result<()> {
+    let main_path = Path::new(input_path);
     let output_base = Path::new(output_path);
     if !main_path.is_dir() {
         panic!("Path {} is not a directory", main_path.to_str().unwrap())
     }
     if !output_base.is_dir() {
-        fs::create_dir(&output_path).unwrap();
+        create_dir(&output_path).unwrap();
     }
     // Read list of files
-    let files = read_directory(path).unwrap();
+    let files = read_directory(input_path).unwrap();
 
     // Gather template toml data
     let template_data = read_file(template_path)?;
@@ -64,14 +63,10 @@ pub fn generate(
         // - CASE: IS DIRECTORY --------------------------------------------
         // Create the directory to match the template.
         if entry.is_dir() {
-            let pth = format!(
-                "{output}/{name}",
-                output = output_path,
-                name = entry.file_name().unwrap().to_str().unwrap()
-            );
 
-            fs::create_dir(&pth).unwrap();
-            generate(entry.to_str().unwrap(), template_path, output_path, Some(path)).unwrap();
+            let pth = str::replace(entry.to_str().unwrap(), recursive_path.unwrap_or(input_path), output_path);
+            create_dir(&pth).unwrap();
+            generate(entry.to_str().unwrap(), template_path, output_path, Some(recursive_path.unwrap_or(input_path))).unwrap();
         }
         // - CASE: IS FILE -------------------------------------------------
         // Replace the template values in each file and write to output
@@ -97,7 +92,7 @@ pub fn generate(
                 let mut pos = 0;
 
                 // Replace input path with output path
-                let pth = str::replace(entry.to_str().unwrap(), recursive_path.unwrap_or(path), output_path);
+                let pth = str::replace(entry.to_str().unwrap(), recursive_path.unwrap_or(input_path), output_path);
                 let new_file_path = PathBuf::from(pth);
                 let mut buffer = File::create(new_file_path)?;
                 while pos < data.len() {
