@@ -25,5 +25,13 @@ fn main() {
         None
     ).unwrap();
 }
+```
+
+## As A CLi
+
+Cli usage is simple, the stovetop utility takes three arguments: `stovetop <INPUT> <TEMPLATE> <OUTPUT>`
+
+```sh
+stovetop ./example/template ./example/stovetop.toml ./output
 
 ```
